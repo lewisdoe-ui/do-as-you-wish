@@ -601,195 +601,213 @@
             </div>
         </div>
     </div>
+<script>
+    // Data storage in memory (no localStorage in this version)
+    let responses = [];
 
-    <script>
-        // Data storage in memory (no localStorage in this version)
-        let responses = [];
-        
-        // Set the current page URL in the share section
-        document.getElementById('shareUrl').textContent = window.location.href;
-        
-        // Add visual feedback for selected options
-        document.querySelectorAll('input[type="radio"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                const questionOptions = this.closest('.question').querySelectorAll('.option');
-                questionOptions.forEach(opt => opt.classList.remove('selected'));
-                this.closest('.option').classList.add('selected');
-            });
+    // Set the current page URL in the share section
+    document.getElementById('shareUrl').textContent = window.location.href;
+
+    // Add visual feedback for selected options
+    document.querySelectorAll('input[type="radio"]').forEach(radio => {
+        radio.addEventListener('change', function () {
+            const questionOptions = this.closest('.question').querySelectorAll('.option');
+            questionOptions.forEach(opt => opt.classList.remove('selected'));
+            this.closest('.option').classList.add('selected');
+        });
+    });
+
+    // Submit functionality
+    document.getElementById('submitBtn').addEventListener('click', function () {
+        const formData = new FormData(document.getElementById('healthQuiz'));
+        const userName = document.getElementById('userName').value.trim() || 'Anonymous';
+
+        // Check if all questions are answered
+        const totalQuestions = 15;
+        let answeredQuestions = 0;
+
+        for (let i = 1; i <= totalQuestions; i++) {
+            if (formData.get(`q${i}`)) {
+                answeredQuestions++;
+            }
+        }
+
+        if (answeredQuestions < totalQuestions) {
+            alert(`Please answer all questions. You've answered ${answeredQuestions} out of ${totalQuestions}.`);
+            return;
+        }
+
+        // Collect responses
+        const response = {
+            name: userName,
+            timestamp: new Date().toLocaleString(),
+            answers: {}
+        };
+
+        for (let i = 1; i <= totalQuestions; i++) {
+            response.answers[`q${i}`] = formData.get(`q${i}`);
+        }
+
+        // Calculate health score
+        const healthScore = calculateHealthScore(response.answers);
+
+        // Store response
+        responses.push(response);
+
+        // Send response to Google Sheet
+        fetch("https://script.google.com/macros/s/AKfycbwwAX3ENqQoB5E-8QDsL1xPSIwPffMPsFV8uIaUJ9Sg5h2dUtVp5MoWn8vJ_8ski9iV/exec", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                name: response.name,
+                q1: response.answers.q1,
+                q2: response.answers.q2,
+                q3: response.answers.q3,
+                q4: response.answers.q4,
+                q5: response.answers.q5,
+                q6: response.answers.q6,
+                q7: response.answers.q7,
+                q8: response.answers.q8,
+                q9: response.answers.q9,
+                q10: response.answers.q10,
+                q11: response.answers.q11,
+                q12: response.answers.q12,
+                q13: response.answers.q13,
+                q14: response.answers.q14,
+                q15: response.answers.q15,
+                healthScore: healthScore
+            })
+        })
+        .then(res => res.text())
+        .then(result => {
+            console.log("Submission to Google Sheet:", result);
+        })
+        .catch(err => {
+            console.error("Error submitting to Google Sheet:", err);
         });
 
-        // Submit functionality
-        document.getElementById('submitBtn').addEventListener('click', function() {
-            const formData = new FormData(document.getElementById('healthQuiz'));
-            const userName = document.getElementById('userName').value.trim() || 'Anonymous';
-            
-            // Check if all questions are answered
-            const totalQuestions = 15;
-            let answeredQuestions = 0;
-            
-            for (let i = 1; i <= totalQuestions; i++) {
-                if (formData.get(`q${i}`)) {
-                    answeredQuestions++;
-                }
-            }
-            
-            if (answeredQuestions < totalQuestions) {
-                alert(`Please answer all questions. You've answered ${answeredQuestions} out of ${totalQuestions}.`);
-                return;
-            }
-            
-            // Collect responses
-            const response = {
-                name: userName,
-                timestamp: new Date().toLocaleString(),
-                answers: {}
-            };
-            
-            for (let i = 1; i <= totalQuestions; i++) {
-                response.answers[`q${i}`] = formData.get(`q${i}`);
-            }
-            
-            // Calculate health score
-            const healthScore = calculateHealthScore(response.answers);
-            
-            // Store response
-            responses.push(response);
-            
-            // Show results with personal assessment
-            showPersonalResults(response.answers, healthScore);
-            
-            // Disable form
-            this.disabled = true;
-            this.textContent = 'Assessment Submitted ✓';
-            
-            // Scroll to results
-            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        // Show results with personal assessment
+        showPersonalResults(response.answers, healthScore);
+
+        // Disable form
+        this.disabled = true;
+        this.textContent = 'Assessment Submitted ✓';
+
+        // Scroll to results
+        document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    // Calculate health score based on responses
+    function calculateHealthScore(answers) {
+        let score = 0;
+        let maxScore = 0;
+
+        if (answers.q1 === 'Yes') score += 3;
+        else if (answers.q1 === 'Unsure') score += 1;
+        maxScore += 3;
+
+        if (answers.q3 === 'Yes') score += 3;
+        else if (answers.q3 === 'Sometimes') score += 1;
+        maxScore += 3;
+
+        if (answers.q4 === 'At every meal') score += 3;
+        else if (answers.q4 === 'Once a day') score += 2;
+        else if (answers.q4 === 'A few times a week') score += 1;
+        maxScore += 3;
+
+        if (answers.q5 === '5+') score += 3;
+        else if (answers.q5 === '3-4') score += 2;
+        else if (answers.q5 === '1-2') score += 1;
+        maxScore += 3;
+
+        if (answers.q6 === 'Very healthy') score += 3;
+        else if (answers.q6 === 'Balanced') score += 2;
+        else if (answers.q6 === 'Unhealthy') score += 1;
+        maxScore += 3;
+
+        if (answers.q8 === 'Never or rarely') score += 3;
+        else if (answers.q8 === 'Once a week') score += 2;
+        else if (answers.q8 === 'A few times a week') score += 1;
+        maxScore += 3;
+
+        if (answers.q9 === '7-8' || answers.q9 === 'More than 8') score += 3;
+        else if (answers.q9 === '5-6') score += 1;
+        maxScore += 3;
+
+        if (answers.q10 === 'Almost never') score += 3;
+        else if (answers.q10 === 'Sometimes') score += 2;
+        else if (answers.q10 === 'Often') score += 1;
+        maxScore += 3;
+
+        if (answers.q11 === 'Yes') score += 3;
+        else if (answers.q11 === 'Not sure') score += 1;
+        maxScore += 3;
+
+        if (answers.q12 === 'Daily') score += 3;
+        else if (answers.q12 === 'A few times a week') score += 2;
+        else if (answers.q12 === 'Rarely') score += 1;
+        maxScore += 3;
+
+        if (answers.q13 === 'Always') score += 3;
+        else if (answers.q13 === 'Sometimes') score += 2;
+        else if (answers.q13 === 'Rarely') score += 1;
+        maxScore += 3;
+
+        if (answers.q14 === 'Excellent') score += 3;
+        else if (answers.q14 === 'Good') score += 2;
+        else if (answers.q14 === 'Fair') score += 1;
+        maxScore += 3;
+
+        if (answers.q15 === 'Yes') score += 3;
+        else if (answers.q15 === 'Unsure') score += 1;
+        maxScore += 3;
+
+        return Math.round((score / maxScore) * 100);
+    }
+
+    // Show personal results
+    function showPersonalResults(answers, healthScore) {
+        document.getElementById('results').style.display = 'block';
+
+        let resultText = `<p><strong>Your Health Score: ${healthScore}%</strong></p>`;
+
+        if (healthScore >= 80) {
+            resultText += `<p>🎉 Excellent! You're living a very healthy lifestyle. Keep up the great work!</p>`;
+        } else if (healthScore >= 60) {
+            resultText += `<p>👍 Good job! You're on the right track. Consider focusing on areas where you can improve.</p>`;
+        } else if (healthScore >= 40) {
+            resultText += `<p>⚠️ There's room for improvement. Small changes in diet, exercise, or sleep could make a big difference.</p>`;
+        } else {
+            resultText += `<p>💪 Don't worry! Everyone starts somewhere. Consider talking to a healthcare professional about making positive changes.</p>`;
+        }
+
+        document.getElementById('personalResults').innerHTML = resultText;
+    }
+
+    // Copy URL functionality
+    function copyUrl() {
+        const url = window.location.href;
+        navigator.clipboard.writeText(url).then(() => {
+            alert('Link copied to clipboard!');
+        }).catch(() => {
+            const textArea = document.createElement('textarea');
+            textArea.value = url;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            alert('Link copied to clipboard!');
         });
+    }
 
-        // Calculate health score based on responses
-        function calculateHealthScore(answers) {
-            let score = 0;
-            let maxScore = 0;
-            
-            // Q1: Am I healthy? (Self-assessment)
-            if (answers.q1 === 'Yes') score += 3;
-            else if (answers.q1 === 'Unsure') score += 1;
-            maxScore += 3;
-            
-            // Q3: Exercise
-            if (answers.q3 === 'Yes') score += 3;
-            else if (answers.q3 === 'Sometimes') score += 1;
-            maxScore += 3;
-            
-            // Q4: Fruits and vegetables
-            if (answers.q4 === 'At every meal') score += 3;
-            else if (answers.q4 === 'Once a day') score += 2;
-            else if (answers.q4 === 'A few times a week') score += 1;
-            maxScore += 3;
-            
-            // Q5: Exercise frequency
-            if (answers.q5 === '5+') score += 3;
-            else if (answers.q5 === '3-4') score += 2;
-            else if (answers.q5 === '1-2') score += 1;
-            maxScore += 3;
-            
-            // Q6: Eating habits
-            if (answers.q6 === 'Very healthy') score += 3;
-            else if (answers.q6 === 'Balanced') score += 2;
-            else if (answers.q6 === 'Unhealthy') score += 1;
-            maxScore += 3;
-            
-            // Q8: Fast food (reverse scoring)
-            if (answers.q8 === 'Never or rarely') score += 3;
-            else if (answers.q8 === 'Once a week') score += 2;
-            else if (answers.q8 === 'A few times a week') score += 1;
-            maxScore += 3;
-            
-            // Q9: Sleep
-            if (answers.q9 === '7-8' || answers.q9 === 'More than 8') score += 3;
-            else if (answers.q9 === '5-6') score += 1;
-            maxScore += 3;
-            
-            // Q10: Stress (reverse scoring)
-            if (answers.q10 === 'Almost never') score += 3;
-            else if (answers.q10 === 'Sometimes') score += 2;
-            else if (answers.q10 === 'Often') score += 1;
-            maxScore += 3;
-            
-            // Q11: Mental wellness
-            if (answers.q11 === 'Yes') score += 3;
-            else if (answers.q11 === 'Not sure') score += 1;
-            maxScore += 3;
-            
-            // Q12: Social connections
-            if (answers.q12 === 'Daily') score += 3;
-            else if (answers.q12 === 'A few times a week') score += 2;
-            else if (answers.q12 === 'Rarely') score += 1;
-            maxScore += 3;
-            
-            // Q13: Emotional support
-            if (answers.q13 === 'Always') score += 3;
-            else if (answers.q13 === 'Sometimes') score += 2;
-            else if (answers.q13 === 'Rarely') score += 1;
-            maxScore += 3;
-            
-            // Q14: Health rating
-            if (answers.q14 === 'Excellent') score += 3;
-            else if (answers.q14 === 'Good') score += 2;
-            else if (answers.q14 === 'Fair') score += 1;
-            maxScore += 3;
-            
-            // Q15: Healthy lifestyle belief
-            if (answers.q15 === 'Yes') score += 3;
-            else if (answers.q15 === 'Unsure') score += 1;
-            maxScore += 3;
-            
-            return Math.round((score / maxScore) * 100);
-        }
-
-        // Show personal results
-        function showPersonalResults(answers, healthScore) {
-            document.getElementById('results').style.display = 'block';
-            
-            let resultText = `<p><strong>Your Health Score: ${healthScore}%</strong></p>`;
-            
-            if (healthScore >= 80) {
-                resultText += `<p>🎉 Excellent! You're living a very healthy lifestyle. Keep up the great work!</p>`;
-            } else if (healthScore >= 60) {
-                resultText += `<p>👍 Good job! You're on the right track. Consider focusing on areas where you can improve.</p>`;
-            } else if (healthScore >= 40) {
-                resultText += `<p>⚠️ There's room for improvement. Small changes in diet, exercise, or sleep could make a big difference.</p>`;
-            } else {
-                resultText += `<p>💪 Don't worry! Everyone starts somewhere. Consider talking to a healthcare professional about making positive changes.</p>`;
-            }
-            
-            document.getElementById('personalResults').innerHTML = resultText;
-        }
-
-        // Copy URL functionality
-        function copyUrl() {
-            const url = window.location.href;
-            navigator.clipboard.writeText(url).then(() => {
-                alert('Link copied to clipboard!');
-            }).catch(() => {
-                // Fallback for older browsers
-                const textArea = document.createElement('textarea');
-                textArea.value = url;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-                alert('Link copied to clipboard!');
-            });
-        }
-
-        // Share via email
-        function shareViaEmail() {
-            const subject = encodeURIComponent('Health Assessment Quiz - Am I Healthy?');
-            const body = encodeURIComponent(`Hi! I'd like to share this health assessment quiz with you. It's a quick way to evaluate your overall well-being across different areas like diet, exercise, sleep, and mental health.\n\nTake the quiz here: ${window.location.href}\n\nIt only takes a few minutes and gives you a personalized health score!`);
-            
-            window.open(`mailto:?subject=${subject}&body=${body}`);
-        }
-    </script>
+    // Share via email
+    function shareViaEmail() {
+        const subject = encodeURIComponent('Health Assessment Quiz - Am I Healthy?');
+        const body = encodeURIComponent(`Hi! I'd like to share this health assessment quiz with you. It's a quick way to evaluate your overall well-being across different areas like diet, exercise, sleep, and mental health.\n\nTake the quiz here: ${window.location.href}\n\nIt only takes a few minutes and gives you a personalized health score!`);
+        window.open(`mailto:?subject=${subject}&body=${body}`);
+    }
+</script>
 </body>
 </html>
