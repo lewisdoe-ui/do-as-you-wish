@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Am I Healthy? - Health Assessment Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%,  #00FF00 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #feca57);
+            padding: 40px;
+            text-align: center;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .intro {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 3px solid #e9ecef;
+        }
+
+        .intro p {
+            font-size: 1.1em;
+            line-height: 1.7;
+            color: #495057;
+            margin-bottom: 15px;
+        }
+
+        .quiz-container {
+            padding: 40px;
+        }
+
+        .question {
+            margin-bottom: 35px;
+            padding: 25px;
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .question:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+
+        .question h3 {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.05em;
+        }
+
+        .option:hover {
+            background: #f8f9fa;
+            border-color: #00FF00;
+        }
+
+        .option input[type="radio"] {
+            margin-right: 12px;
+            transform: scale(1.2);
+            accent-color: #667eea;
+        }
+
+        .option.selected {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .submit-section {
+            background: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            border-top: 3px solid #e9ecef;
+        }
+
+        .name-input {
+            margin-bottom: 20px;
+        }
+
+        .name-input input {
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1.1em;
+            width: 300px;
+            max-width: 100%;
+        }
+
+        .name-input input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.2);
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results {
+            margin-top: 30px;
+            padding: 25px;
+            background: #e3f2fd;
+            border-radius: 15px;
+            border-left: 5px solid #2196f3;
+        }
+
+        .results h3 {
+            color: #1976d2;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+
+        .share-section {
+            background: #fff3e0;
+            border: 2px solid #ffc107;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .share-section h3 {
+            color: #e65100;
+            margin-bottom: 15px;
+        }
+
+        .share-url {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 14px;
+            word-break: break-all;
+            border: 1px solid #ddd;
+            margin: 10px 0;
+        }
+
+        .copy-btn {
+            background: #ff9800;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            margin: 5px;
+        }
+
+        .copy-btn:hover {
+            background: #e68900;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 30px 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .quiz-container {
+                padding: 20px;
+            }
+            
+            .question {
+                padding: 20px 15px;
+            }
+            
+            .name-input input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Am I Healthy?</h1>
+            <p>An assessment to understand your overall well-being</p>
+        </div>
+
+        <div class="share-section">
+            <h3>🔗 Share This Quiz</h3>
+            <p>Copy the link below to share this health assessment with others:</p>
+            <div class="share-url" id="shareUrl">
+                [Your hosted URL will appear here]
+            </div>
+            <button class="copy-btn" onclick="copyUrl()">Copy Link</button>
+            <button class="copy-btn" onclick="shareViaEmail()">Share via Email</button>
+        </div>
+
+        <div class="intro">
+            <p>Health isn't just about avoiding sickness—it's about how you live, feel, and connect every day. Most people aren't truly healthy by this standard. Only a small percentage live a balanced lifestyle with good eating habits, regular exercise, avoiding harmful habits, and maintaining strong social connections.</p>
+            <p>Many deal with stress, poor diets, lack of sleep, or mental health struggles. Even if someone looks fine physically, they might not feel well emotionally or socially. Real health is about your complete daily experience.</p>
+        </div>
+
+        <form id="healthQuiz" class="quiz-container">
+            <div class="question">
+                <h3>1. Am I Healthy?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q1" value="Yes">
+                        Yes
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q1" value="No">
+                        No
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q1" value="Unsure">
+                        Unsure
+                    </label>
+                </div>
+            </div>
+
+            <div class="question">
+                <h3>2. What do you consider healthy?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q2" value="Balanced diet">
+                        A balanced diet rich in fruits, vegetables, and whole grains, and low in processed foods
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q2" value="Regular exercise">
+                        Regular physical activity, such as walking, running, or swimming
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q2" value="Sleep and stress management">
+                        Sufficient sleep and stress management techniques
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q2" value="Social connections">
+                        Social interaction and strong relationships with others
+                    </label>
+                </div>
+            </div>
+
+            <div class="question">
+                <h3>3. Do you exercise?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q3" value="Yes">
+                        Yes
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q3" value="No">
+                        No
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q3" value="Sometimes">
+                        Sometimes
+                    </label>
+                </div>
+            </div>
+
+            <div class="question">
+                <h3>4. How often do you consume fruits and vegetables as part of your daily meals?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q4" value="At every meal">
+                        At every meal
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q4" value="Once a day">
+                        Once a day
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q4" value="A few times a week">
+                        A few times a week
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q4" value="Rarely or never">
+                        Rarely or never
+                    </label>
+                </div>
+            </div>
+
+            <div class="question">
+                <h3>5. How many days per week do you exercise?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q5" value="0">
+                        0 days
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q5" value="1-2">
+                        1–2 days
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q5" value="3-4">
+                        3–4 days
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q5" value="5+">
+                        5 or more days
+                    </label>
+                </div>
+            </div>
+
+            <div class="question">
+                <h3>6. How would you rate your daily eating habits?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q6" value="Very unhealthy">
+                        Very unhealthy
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q6" value="Unhealthy">
+                        Unhealthy
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q6" value="Balanced">
+                        Balanced
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q6" value="Very healthy">
+                        Very healthy
+                    </label>
+                </div>
+            </div>
+
+            <div class="question">
+                <h3>7. How many meals do you eat per day?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q7" value="1-2 meals">
+                        1–2 meals
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q7" value="3 meals">
+                        3 meals
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q7" value="4-5 meals">
+                        4–5 meals
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q7" value="More than 5 meals">
+                        More than 5 meals
+                    </label>
+                </div>
+            </div>
+
+            <div class="question">
+                <h3>8. How often do you eat fast food or highly processed meals?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q8" value="Once a day">
+                        Once a day
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q8" value="A few times a week">
+                        A few times a week
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q8" value="Once a week">
+                        Once a week
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q8" value="Never or rarely">
+                        Never or rarely
+                    </label>
+                </div>
+            </div>
+
+            <div class="question">
+                <h3>9. How many hours of sleep do you get on an average school/work night?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q9" value="Less than 5">
+                        Less than 5 hours
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q9" value="5-6">
+                        5–6 hours
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q9" value="7-8">
+                        7–8 hours
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q9" value="More than 8">
+                        More than 8 hours
+                    </label>
+                </div>
+            </div>
+
+            <div class="question">
+                <h3>10. In the past month, how often have you felt stressed or overwhelmed?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q10" value="Almost never">
+                        Almost never
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q10" value="Sometimes">
+                        Sometimes
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q10" value="Often">
+                        Often
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q10" value="Almost every day">
+                        Almost every day
+                    </label>
+                </div>
+            </div>
+
+            <div class="question">
+                <h3>11. Do you feel mentally rested and emotionally stable most days?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q11" value="Yes">
+                        Yes
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q11" value="No">
+                        No
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q11" value="Not sure">
+                        Not sure
+                    </label>
+                </div>
+            </div>
+
+            <div class="question">
+                <h3>12. How often do you spend quality time with friends or family?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q12" value="Daily">
+                        Daily
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q12" value="A few times a week">
+                        A few times a week
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q12" value="Rarely">
+                        Rarely
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q12" value="Never">
+                        Never
+                    </label>
+                </div>
+            </div>
+
+            <div class="question">
+                <h3>13. Do you feel like you have someone to talk to when you're feeling down?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q13" value="Always">
+                        Always
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q13" value="Sometimes">
+                        Sometimes
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q13" value="Rarely">
+                        Rarely
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q13" value="Never">
+                        Never
+                    </label>
+                </div>
+            </div>
+
+            <div class="question">
+                <h3>14. How would you rate your health right now?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q14" value="Excellent">
+                        Excellent
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q14" value="Good">
+                        Good
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q14" value="Fair">
+                        Fair
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q14" value="Poor">
+                        Poor
+                    </label>
+                </div>
+            </div>
+
+            <div class="question">
+                <h3>15. Do you believe you're living a healthy lifestyle?</h3>
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q15" value="Yes">
+                        Yes
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q15" value="No">
+                        No
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q15" value="Unsure">
+                        Unsure
+                    </label>
+                </div>
+            </div>
+        </form>
+
+        <div class="submit-section">
+            <div class="name-input">
+                <input type="text" id="userName" placeholder="Enter your name (optional)" maxlength="50">
+            </div>
+            <button type="button" id="submitBtn" class="submit-btn">Submit Health Assessment</button>
+            
+            <div id="results" class="results" style="display: none;">
+                <h3>Thank you for completing the assessment!</h3>
+                <p>Your responses have been recorded. Understanding your health patterns is the first step toward better well-being.</p>
+                <p><strong>Results Summary:</strong></p>
+                <div id="personalResults"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data storage in memory (no localStorage in this version)
+        let responses = [];
+        
+        // Set the current page URL in the share section
+        document.getElementById('shareUrl').textContent = window.location.href;
+        
+        // Add visual feedback for selected options
+        document.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const questionOptions = this.closest('.question').querySelectorAll('.option');
+                questionOptions.forEach(opt => opt.classList.remove('selected'));
+                this.closest('.option').classList.add('selected');
+            });
+        });
+
+        // Submit functionality
+        document.getElementById('submitBtn').addEventListener('click', function() {
+            const formData = new FormData(document.getElementById('healthQuiz'));
+            const userName = document.getElementById('userName').value.trim() || 'Anonymous';
+            
+            // Check if all questions are answered
+            const totalQuestions = 15;
+            let answeredQuestions = 0;
+            
+            for (let i = 1; i <= totalQuestions; i++) {
+                if (formData.get(`q${i}`)) {
+                    answeredQuestions++;
+                }
+            }
+            
+            if (answeredQuestions < totalQuestions) {
+                alert(`Please answer all questions. You've answered ${answeredQuestions} out of ${totalQuestions}.`);
+                return;
+            }
+            
+            // Collect responses
+            const response = {
+                name: userName,
+                timestamp: new Date().toLocaleString(),
+                answers: {}
+            };
+            
+            for (let i = 1; i <= totalQuestions; i++) {
+                response.answers[`q${i}`] = formData.get(`q${i}`);
+            }
+            
+            // Calculate health score
+            const healthScore = calculateHealthScore(response.answers);
+            
+            // Store response
+            responses.push(response);
+            
+            // Show results with personal assessment
+            showPersonalResults(response.answers, healthScore);
+            
+            // Disable form
+            this.disabled = true;
+            this.textContent = 'Assessment Submitted ✓';
+            
+            // Scroll to results
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        // Calculate health score based on responses
+        function calculateHealthScore(answers) {
+            let score = 0;
+            let maxScore = 0;
+            
+            // Q1: Am I healthy? (Self-assessment)
+            if (answers.q1 === 'Yes') score += 3;
+            else if (answers.q1 === 'Unsure') score += 1;
+            maxScore += 3;
+            
+            // Q3: Exercise
+            if (answers.q3 === 'Yes') score += 3;
+            else if (answers.q3 === 'Sometimes') score += 1;
+            maxScore += 3;
+            
+            // Q4: Fruits and vegetables
+            if (answers.q4 === 'At every meal') score += 3;
+            else if (answers.q4 === 'Once a day') score += 2;
+            else if (answers.q4 === 'A few times a week') score += 1;
+            maxScore += 3;
+            
+            // Q5: Exercise frequency
+            if (answers.q5 === '5+') score += 3;
+            else if (answers.q5 === '3-4') score += 2;
+            else if (answers.q5 === '1-2') score += 1;
+            maxScore += 3;
+            
+            // Q6: Eating habits
+            if (answers.q6 === 'Very healthy') score += 3;
+            else if (answers.q6 === 'Balanced') score += 2;
+            else if (answers.q6 === 'Unhealthy') score += 1;
+            maxScore += 3;
+            
+            // Q8: Fast food (reverse scoring)
+            if (answers.q8 === 'Never or rarely') score += 3;
+            else if (answers.q8 === 'Once a week') score += 2;
+            else if (answers.q8 === 'A few times a week') score += 1;
+            maxScore += 3;
+            
+            // Q9: Sleep
+            if (answers.q9 === '7-8' || answers.q9 === 'More than 8') score += 3;
+            else if (answers.q9 === '5-6') score += 1;
+            maxScore += 3;
+            
+            // Q10: Stress (reverse scoring)
+            if (answers.q10 === 'Almost never') score += 3;
+            else if (answers.q10 === 'Sometimes') score += 2;
+            else if (answers.q10 === 'Often') score += 1;
+            maxScore += 3;
+            
+            // Q11: Mental wellness
+            if (answers.q11 === 'Yes') score += 3;
+            else if (answers.q11 === 'Not sure') score += 1;
+            maxScore += 3;
+            
+            // Q12: Social connections
+            if (answers.q12 === 'Daily') score += 3;
+            else if (answers.q12 === 'A few times a week') score += 2;
+            else if (answers.q12 === 'Rarely') score += 1;
+            maxScore += 3;
+            
+            // Q13: Emotional support
+            if (answers.q13 === 'Always') score += 3;
+            else if (answers.q13 === 'Sometimes') score += 2;
+            else if (answers.q13 === 'Rarely') score += 1;
+            maxScore += 3;
+            
+            // Q14: Health rating
+            if (answers.q14 === 'Excellent') score += 3;
+            else if (answers.q14 === 'Good') score += 2;
+            else if (answers.q14 === 'Fair') score += 1;
+            maxScore += 3;
+            
+            // Q15: Healthy lifestyle belief
+            if (answers.q15 === 'Yes') score += 3;
+            else if (answers.q15 === 'Unsure') score += 1;
+            maxScore += 3;
+            
+            return Math.round((score / maxScore) * 100);
+        }
+
+        // Show personal results
+        function showPersonalResults(answers, healthScore) {
+            document.getElementById('results').style.display = 'block';
+            
+            let resultText = `<p><strong>Your Health Score: ${healthScore}%</strong></p>`;
+            
+            if (healthScore >= 80) {
+                resultText += `<p>🎉 Excellent! You're living a very healthy lifestyle. Keep up the great work!</p>`;
+            } else if (healthScore >= 60) {
+                resultText += `<p>👍 Good job! You're on the right track. Consider focusing on areas where you can improve.</p>`;
+            } else if (healthScore >= 40) {
+                resultText += `<p>⚠️ There's room for improvement. Small changes in diet, exercise, or sleep could make a big difference.</p>`;
+            } else {
+                resultText += `<p>💪 Don't worry! Everyone starts somewhere. Consider talking to a healthcare professional about making positive changes.</p>`;
+            }
+            
+            document.getElementById('personalResults').innerHTML = resultText;
+        }
+
+        // Copy URL functionality
+        function copyUrl() {
+            const url = window.location.href;
+            navigator.clipboard.writeText(url).then(() => {
+                alert('Link copied to clipboard!');
+            }).catch(() => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = url;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('Link copied to clipboard!');
+            });
+        }
+
+        // Share via email
+        function shareViaEmail() {
+            const subject = encodeURIComponent('Health Assessment Quiz - Am I Healthy?');
+            const body = encodeURIComponent(`Hi! I'd like to share this health assessment quiz with you. It's a quick way to evaluate your overall well-being across different areas like diet, exercise, sleep, and mental health.\n\nTake the quiz here: ${window.location.href}\n\nIt only takes a few minutes and gives you a personalized health score!`);
+            
+            window.open(`mailto:?subject=${subject}&body=${body}`);
+        }
+    </script>
+</body>
+</html>
