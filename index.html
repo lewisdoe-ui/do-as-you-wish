@@ -655,8 +655,9 @@
         responses.push(response);
 
         // Send response to Google Sheet
-        fetch("https://script.google.com/macros/s/AKfycbwwAX3ENqQoB5E-8QDsL1xPSIwPffMPsFV8uIaUJ9Sg5h2dUtVp5MoWn8vJ_8ski9iV/exec", {
+        fetch("https://script.google.com/macros/s/AKfycbynYFbdizQHs314ssVcqZikAvPWtryq2M99_rdYs90IN9rPLE4jDcN1P0CdF1jpfCkK/exec", {
             method: "POST",
+            mode: "no-cors",
             headers: {
                 "Content-Type": "application/json"
             },
